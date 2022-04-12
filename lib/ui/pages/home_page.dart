@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:imc_project/ui/components/components.dart';
+import 'package:imc_project/ui/pages/pages.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -11,57 +13,59 @@ class _HomePageState extends State<HomePage> {
   final _pesoController = TextEditingController();
   final _alturaController = TextEditingController();
 
+  String nomeApp = 'IMC';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('IMC'),
+        title: Text(nomeApp),
         centerTitle: true,
         backgroundColor: Colors.amber,
       ),
       body: Column(
         children: [
-          _criarCampoTexto(_pesoController, 'Peso', 'Digite seu Peso:'),
-          _criarCampoTexto(_alturaController, 'Altura', 'Digite sua Altura:'),
-          _criarBotao('Calcular', _clique),
+          CampoTexto(
+            controlador: _pesoController,
+            hinttext: 'Digite seu Peso:',
+            labelText: 'Peso',
+          ),
+          CampoTexto(
+              controlador: _alturaController,
+              hinttext: 'Digite sua Altura:',
+              labelText: 'Altura'),
+          Botao(clique: _clique, texto: 'Calcular'),
         ],
       ),
-    );
-  }
-
-  Widget _criarCampoTexto(
-      TextEditingController controlador, String labelText, prefixTeste) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-      child: TextField(
-        controller: controlador,
-        keyboardType: TextInputType.number,
-        decoration: InputDecoration(
-          border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4)),
-              borderSide: BorderSide(
-                width: 1,
-              )),
-          focusedBorder: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(4)),
-            borderSide: BorderSide(width: 1, color: Colors.amber),
-          ),
-          prefixText: prefixTeste,
-          labelText: labelText,
-          labelStyle: const TextStyle(
-            color: Colors.black,
-          ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.amber,
+              ),
+              child: Text('Contato'),
+            ),
+            ListTile(
+              title: const Text('Contato'),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ContatoPage()));
+              },
+            ),
+            ListTile(
+              title: Text(nomeApp),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const HomePage()));
+              },
+            ),
+          ],
         ),
       ),
-    );
-  }
-
-  Widget _criarBotao(String texto, VoidCallback clique) {
-    return ElevatedButton(
-      style:
-          ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.amber)),
-      onPressed: clique,
-      child: Text(texto),
     );
   }
 
@@ -71,7 +75,14 @@ class _HomePageState extends State<HomePage> {
     double altura =
         double.tryParse(_alturaController.text.replaceAll(',', '.')) ?? 0;
 
-    _mostrarMensagem('o seu IMC é ${_calcularIMC(peso, altura)}', 'IMC');
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertPopUp(
+            titulo: nomeApp,
+            texto: 'o seu IMC é ${_calcularIMC(peso, altura)}',
+          );
+        });
   }
 
   String _calcularIMC(double valorPeso, valorAltura) {
@@ -96,26 +107,4 @@ class _HomePageState extends State<HomePage> {
 
     return imc;
   }
-
-  void _mostrarMensagem(String texto, titulo) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text(
-              titulo,
-              style: const TextStyle(fontSize: 22),
-            ),
-            content: Text(
-              texto,
-              style: const TextStyle(fontSize: 20),
-            ),
-            actions: [
-              _criarBotao('OK', () {
-                Navigator.pop(context);
-              }),
-            ],
-          );
-        });
-  }
-}
+} s
